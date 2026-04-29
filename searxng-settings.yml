@@ -1,5 +1,6 @@
 # SearXNG Configuration for MCP Server
 use_default_settings: true
+
 general:
   debug: false
   instance_name: "SearXNG MCP"
@@ -9,8 +10,9 @@ general:
 
 search:
   safe_search: 0
-  autocomplete: "google"
+  autocomplete: ""
   default_lang: "en"
+  max_request_timeout: 10.0
   formats:
     - html
     - json
@@ -18,11 +20,12 @@ search:
 server:
   port: 8080
   bind_address: "0.0.0.0"
-  secret_key: "change-this-secret-key-12345"
+  secret_key: "CHANGE_ME_RUN_openssl_rand_-hex_32_AND_PASTE_HERE"
   base_url: "http://localhost:8081/"
   image_proxy: true
   http_protocol_version: "1.1"
   method: "POST"
+  limiter: false              # <-- NIEUW: bot detection + rate limiting
 
 ui:
   static_use_hash: false
@@ -35,49 +38,69 @@ ui:
   theme_args:
     simple_style: auto
 
-# Configure outgoing requests (no proxy for initial testing)
+# Outgoing requests
 outgoing:
-  request_timeout: 10.0
+  request_timeout: 6.0       # <-- Verlaagd: faster fail
   max_request_timeout: 15.0
   pool_connections: 100
   pool_maxsize: 20
+  enable_http2: true         # <-- NIEUW: performance
+  retries: 1                 # <-- NIEUW: één retry bij failure
 
-# Enabled engines
+# Engines: prioriteer engines die minder snel blokkeren
 engines:
-  # Web search engines
-  - name: google
-    engine: google
-    shortcut: go
-    use_mobile_ui: false
-
-  - name: bing
-    engine: bing
-    shortcut: bi
-
+  # Web search — minder agressieve engines bovenaan
   - name: duckduckgo
     engine: duckduckgo
     shortcut: ddg
-
+    timeout: 6.0
+  
+  - name: brave
+    engine: brave
+    shortcut: br
+    timeout: 6.0
+    
   - name: startpage
     engine: startpage
     shortcut: sp
-    timeout: 6.0
-
+    timeout: 8.0
+  
   - name: qwant
     engine: qwant
     shortcut: qw
     categories: general
-    disabled: false
+    timeout: 6.0
+  
+  - name: mojeek
+    engine: mojeek
+    shortcut: mjk
+    timeout: 6.0
+    
+  # Google: behouden maar met lagere weight (wordt minder vaak gebruikt)
+  - name: google
+    engine: google
+    shortcut: go
+    use_mobile_ui: false
+    timeout: 8.0
+    weight: 0.5
+  
+  # Bing: zelfde verhaal
+  - name: bing
+    engine: bing
+    shortcut: bi
+    timeout: 8.0
+    weight: 0.5
 
-  # Tech engines
+  # Tech-specific engines (geen rate limit issues hier)
   - name: github
     engine: github
     shortcut: gh
-
+    timeout: 8.0
+    
   - name: stackoverflow
     engine: stackoverflow
     shortcut: so
-    timeout: 10
+    timeout: 10.0
 
 redis:
   url: redis://redis:6379/0

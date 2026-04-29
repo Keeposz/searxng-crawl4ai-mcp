@@ -35,7 +35,6 @@ coverage/
 .nyc_output
 
 # Docker
-.dockerignore
 
 # OS generated files
 .DS_Store
@@ -72,3 +71,6 @@ debug-*.mjs
 
 # Sensitive configuration examples
 claude-code-mcp-config.json
+# Local files
+*.bak
+pnpm-lock.yaml
