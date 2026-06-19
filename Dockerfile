@@ -31,5 +31,8 @@ RUN npm run build
 # Expose port for MCP server
 EXPOSE 3003
 
+RUN chown -R 1000:1000 /app
+USER 1000
+
 # Start the MCP server
 CMD ["npm", "start"]
