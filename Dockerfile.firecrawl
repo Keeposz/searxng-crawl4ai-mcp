@@ -88,4 +88,7 @@ app.listen(PORT, "0.0.0.0", () => {\n\
 
 EXPOSE 3002
 
+RUN chown -R 1000:1000 /app
+USER 1000
+
 CMD ["node", "server.js"]
