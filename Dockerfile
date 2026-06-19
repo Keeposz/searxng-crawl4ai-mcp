@@ -16,17 +16,20 @@ RUN apk add --no-cache \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Copy package files
-COPY package*.json ./
+# Enable pnpm via Corepack (bundled with Node 18)
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
-# Install dependencies
-RUN npm install
+# Copy manifest, lockfile and pnpm settings
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install dependencies (reproducible from the committed lockfile)
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Expose port for MCP server
 EXPOSE 3003
@@ -35,4 +38,4 @@ RUN chown -R 1000:1000 /app
 USER 1000
 
 # Start the MCP server
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]
