@@ -49,5 +49,8 @@
     "proxy"
   ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "overrides": {
+    "lodash@<=4.18.1": "4.18.1"
+  }
 }
